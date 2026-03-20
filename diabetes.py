@@ -41,7 +41,7 @@ def lab():
         # 현재 파일의 위치를 기준으로 절대 경로 생성
         basedir = os.path.abspath(os.path.dirname(__file__))
         csv_path = os.path.join(basedir, 'diabetes.csv')
-        model_path = os.path.join(basedir, 'pima_model.h5')
+        model_path = os.path.join(basedir, 'pima_model.keras')
 
         X_test = np.array([[float(form.preg.data),
                             float(form.glucose.data),
@@ -61,7 +61,15 @@ def lab():
         X_test = scaler.transform(X_test)
         
         # 절대 경로를 사용하여 모델 로드
-        model = keras.models.load_model(model_path)
+        try:
+            # compile=False를 넣으면 버전 차이로 인한 충돌을 방지합니다.
+            model = keras.models.load_model(model_path, compile=False)
+            
+            # 예측하기 전에 모델을 한번 빌드해주는 게 안전합니다.
+            model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+            print("모델 로드 및 컴파일 완료!")
+        except Exception as e:
+            print(f"모델 로드 중 오류 발생: {e}")
 
         prediction = model.predict(X_test)
         res = prediction[0][0]
