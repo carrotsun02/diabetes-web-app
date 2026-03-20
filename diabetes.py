@@ -25,28 +25,35 @@ model = None
 scaler = MinMaxScaler()
 
 # 서버 시작 시 모델과 스케일러를 미리 로드하는 함수
+# diabetes.py의 initialize_app 함수를 아래와 같이 수정해서 배포해보세요.
+
 def initialize_app():
     global model, scaler
-    try:
-        # 1. 모델 로드 (compile=False로 버전 차이로 인한 오류 방지)
-        if os.path.exists(model_path):
-            model = keras.models.load_model(model_path, compile=False)
-            model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-            print("모델 로드 성공")
-        else:
-            print(f"모델 파일을 찾을 수 없습니다: {model_path}")
+    print("--- 초기화 시작 ---")
+    
+    # 1. 파일 존재 여부 재확인
+    if os.path.exists(model_path):
+        print(f"파일 확인됨: {model_path}")
+        print(f"파일 크기: {os.path.getsize(model_path)} bytes")
+    else:
+        print(f"파일 없음: {model_path}")
+        return
 
-        # 2. 스케일러 학습 (데이터 전처리를 위해 CSV 읽기)
+    try:
+        # 2. 상세 에러 출력을 위해 traceback 사용 (필요시 import traceback 추가)
+        import traceback
+        model = keras.models.load_model(model_path, compile=False)
+        model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+        print("모델 로드 성공")
+        
         if os.path.exists(csv_path):
             data = pd.read_csv(csv_path)
-            X = data.values[:, 0:8]
-            scaler.fit(X)
+            scaler.fit(data.values[:, 0:8])
             print("스케일러 학습 완료")
-        else:
-            print(f"CSV 파일을 찾을 수 없습니다: {csv_path}")
-            
     except Exception as e:
-        print(f"초기화 중 에러 발생: {e}")
+        print("!!! 모델 로드 중 상세 에러 발생 !!!")
+        print(traceback.format_exc()) # 이 코드가 에러의 진짜 이유를 로그에 다 뿌려줍니다.
+        model = None
 
 # 초기화 실행
 initialize_app()
