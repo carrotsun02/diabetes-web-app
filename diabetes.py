@@ -41,7 +41,7 @@ def lab():
         # 현재 파일의 위치를 기준으로 절대 경로 생성
         basedir = os.path.abspath(os.path.dirname(__file__))
         csv_path = os.path.join(basedir, 'diabetes.csv')
-        model_path = os.path.join(basedir, 'pima_model.keras')
+        model_path = os.path.join(basedir, 'pima_model.h5')
 
         X_test = np.array([[float(form.preg.data),
                             float(form.glucose.data),
