@@ -93,7 +93,6 @@ print("\nExporting SavedModels: ")
 
 # Keras 모델 저장
 model.save('pima_model.keras')
-model.save_weights('pima_model_weights.h5')
 
 # 모델 로드
 model = keras.models.load_model('pima_model.keras')
